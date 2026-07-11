@@ -15,11 +15,22 @@ export function ProductView({ product }: { product: ProductDetail }) {
   const [colorCode, setColorCode] = useState(colors[0]?.[0]);
   const [size, setSize] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   const sizesForColor = product.variants.filter((v) => v.colorCode === colorCode);
   const selected = sizesForColor.find((v) => v.size === size) ?? null;
   const images = product.images.filter((i) => i.colorCode === colorCode);
   const price = selected?.price ?? product.basePrice;
+
+  const changeColor = (code: typeof colorCode) => {
+    setColorCode(code);
+    setSize(null);
+    setActiveImage(0);
+  };
+
+  const showImage = (index: number) => {
+    setActiveImage((index + images.length) % images.length);
+  };
 
   const handleAdd = () => {
     if (!selected) return;
@@ -31,7 +42,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
       size: selected.size,
       price: selected.price,
       weightGram: product.weightGram,
-      imageUrl: images[0]?.url ?? null,
+      imageUrl: images[activeImage]?.url ?? null,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -39,15 +50,65 @@ export function ProductView({ product }: { product: ProductDetail }) {
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
-      <div className="grid grid-cols-2 gap-2">
-        {images.map((img) => (
-          <div key={img.id} className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
-            <Image src={img.url} alt={`${product.name} ${img.view} ${img.type}`} fill className="object-cover" sizes="50vw" />
-          </div>
-        ))}
-        {images.length === 0 && (
-          <div className="col-span-2 flex aspect-square items-center justify-center rounded-lg bg-neutral-100 text-neutral-400">
-            Foto belum tersedia
+      <div>
+        <div className="relative aspect-square overflow-hidden rounded-lg bg-neutral-100">
+          {images.length > 0 ? (
+            <Image
+              key={images[activeImage].id}
+              src={images[activeImage].url}
+              alt={`${product.name} ${images[activeImage].view} ${images[activeImage].type}`}
+              fill
+              className="object-cover"
+              sizes="50vw"
+              priority
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-neutral-400">Foto belum tersedia</div>
+          )}
+
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => showImage(activeImage - 1)}
+                aria-label="Foto sebelumnya"
+                className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-neutral-900 shadow hover:bg-white"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
+                  <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => showImage(activeImage + 1)}
+                aria-label="Foto berikutnya"
+                className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/80 text-neutral-900 shadow hover:bg-white"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <div className="absolute bottom-2 right-2 rounded-full bg-black/60 px-2 py-0.5 text-xs text-white">
+                {activeImage + 1}/{images.length}
+              </div>
+            </>
+          )}
+        </div>
+
+        {images.length > 1 && (
+          <div className="mt-2 grid grid-cols-4 gap-2">
+            {images.map((img, i) => (
+              <button
+                key={img.id}
+                type="button"
+                onClick={() => showImage(i)}
+                className={`relative aspect-square overflow-hidden rounded-lg bg-neutral-100 ${
+                  i === activeImage ? "ring-2 ring-neutral-900" : "opacity-70 hover:opacity-100"
+                }`}
+              >
+                <Image src={img.url} alt={`${product.name} ${img.view} ${img.type}`} fill className="object-cover" sizes="25vw" />
+              </button>
+            ))}
           </div>
         )}
       </div>
@@ -66,7 +127,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
               {colors.map(([code, name]) => (
                 <button
                   key={code}
-                  onClick={() => { setColorCode(code); setSize(null); }}
+                  onClick={() => changeColor(code)}
                   className={`rounded border px-3 py-1 text-sm ${colorCode === code ? "border-neutral-900 bg-neutral-900 text-white" : ""}`}
                 >
                   {name}

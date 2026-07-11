@@ -85,9 +85,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const count = lines.reduce((s, l) => s + l.qty, 0);
 
   return (
-    <Ctx.Provider value={{ lines, add, setQty, remove, clear, subtotal, totalWeight, count }}>
+    <Ctx value={{ lines, add, setQty, remove, clear, subtotal, totalWeight, count }}>
       {children}
-    </Ctx.Provider>
+    </Ctx>
   );
 }
 

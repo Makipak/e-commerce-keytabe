@@ -40,6 +40,7 @@ model Product {
   name        String
   description String?
   category    Category
+  designNo    Int // urutan desain dalam kategori — dipakai untuk generate SKU varian (AIS-{kategori}{designNo}-{warna}-{size})
   basePrice   Int // IDR utuh
   weightGram  Int // untuk ongkir
   isActive    Boolean          @default(true)

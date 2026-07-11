@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import axios from "axios";
+import { buildSku, type Category, type ColorCode, type Size } from "@keytabee/shared";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
@@ -121,8 +122,15 @@ export class ProductsService {
     });
   }
 
-  async create(data: Prisma.ProductCreateInput) {
-    const product = await this.prisma.product.create({ data });
+  async create(data: Omit<Prisma.ProductCreateInput, "designNo">) {
+    const last = await this.prisma.product.findFirst({
+      where: { category: data.category },
+      orderBy: { designNo: "desc" },
+      select: { designNo: true },
+    });
+    const product = await this.prisma.product.create({
+      data: { ...data, designNo: (last?.designNo ?? 0) + 1 },
+    });
     void this.revalidateWeb(product.id);
     return product;
   }
@@ -156,8 +164,23 @@ export class ProductsService {
     return { ...archived, deleted: false, orderCount };
   }
 
-  async createVariant(productId: string, data: Omit<Prisma.ProductVariantUncheckedCreateInput, "productId">) {
-    const variant = await this.prisma.productVariant.create({ data: { ...data, productId } });
+  async createVariant(
+    productId: string,
+    data: Omit<Prisma.ProductVariantUncheckedCreateInput, "productId" | "sku">,
+  ) {
+    const product = await this.prisma.product.findUniqueOrThrow({
+      where: { id: productId },
+      select: { category: true, designNo: true },
+    });
+    const sku = buildSku(
+      product.category as Category,
+      product.designNo,
+      data.colorCode as ColorCode,
+      data.size as Size,
+    );
+    const variant = await this.prisma.productVariant.create({
+      data: { ...data, sku, productId },
+    });
     void this.revalidateWeb(productId);
     return variant;
   }

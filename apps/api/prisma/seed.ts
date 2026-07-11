@@ -4,6 +4,7 @@
  */
 import { PrismaClient, Category, Size } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import { buildSku } from "@keytabee/shared";
 
 const prisma = new PrismaClient();
 
@@ -51,6 +52,7 @@ async function main() {
         slug: p.slug,
         name: p.name,
         category: p.category,
+        designNo: p.designNo,
         basePrice: p.basePrice,
         weightGram: p.weightGram,
       },
@@ -59,7 +61,7 @@ async function main() {
     const sizes = p.oneSize ? [Size.OS] : SIZES;
     for (const color of p.colors) {
       for (const size of sizes) {
-        const sku = `AIS-${p.category}${p.designNo}-${color.code}-${size}`;
+        const sku = buildSku(p.category, p.designNo, color.code as any, size);
         await prisma.productVariant.upsert({
           where: { sku },
           update: {},

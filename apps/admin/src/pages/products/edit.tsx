@@ -86,7 +86,6 @@ export function ProductEdit() {
           colorCode: values.colorCode,
           colorName: COLORS[values.colorCode as keyof typeof COLORS],
           size: values.size,
-          sku: values.sku,
           price: values.price ?? null,
           stock: values.stock ?? 0,
         }),
@@ -240,9 +239,6 @@ export function ProductEdit() {
               options={SIZES.map((s) => ({ value: s, label: s }))}
               style={{ width: 90 }}
             />
-          </Form.Item>
-          <Form.Item name="sku" rules={[{ required: true, message: "SKU?" }]}>
-            <Input placeholder="SKU (AIS-TSH1-BLK-M)" style={{ width: 200 }} />
           </Form.Item>
           <Form.Item name="price">
             <InputNumber placeholder="Harga override" min={0} style={{ width: 140 }} />
