@@ -15,6 +15,7 @@ import "@refinedev/antd/dist/reset.css";
 
 import { authProvider } from "./providers/auth-provider";
 import { dataProvider } from "./providers/data-provider";
+import { Title } from "./components/title";
 import { ProductList } from "./pages/products/list";
 import { ProductEdit } from "./pages/products/edit";
 import { ProductCreate } from "./pages/products/create";
@@ -52,7 +53,7 @@ export function App() {
               <Route
                 element={
                   <Authenticated key="auth" fallback={<CatchAllNavigate to="/login" />}>
-                    <ThemedLayoutV2>
+                    <ThemedLayoutV2 Title={Title}>
                       <Outlet />
                     </ThemedLayoutV2>
                   </Authenticated>
@@ -72,7 +73,14 @@ export function App() {
               </Route>
               <Route
                 path="/login"
-                element={<AuthPage type="login" registerLink={false} forgotPasswordLink={false} />}
+                element={
+                  <AuthPage
+                    type="login"
+                    registerLink={false}
+                    forgotPasswordLink={false}
+                    title={<Title collapsed={false} />}
+                  />
+                }
               />
             </Routes>
           </Refine>

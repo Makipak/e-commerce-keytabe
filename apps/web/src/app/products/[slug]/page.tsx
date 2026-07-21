@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/api";
 import { ProductView } from "./product-view";
 
@@ -9,7 +10,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await getProduct(slug).catch(() => null);
+  if (!product) return { title: "Produk tidak ditemukan" };
   return {
     title: product.name,
     description: product.description ?? `${product.name} — official aissential merch.`,
@@ -25,6 +27,7 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = await getProduct(slug);
+  const product = await getProduct(slug).catch(() => null);
+  if (!product) notFound();
   return <ProductView product={product} />;
 }

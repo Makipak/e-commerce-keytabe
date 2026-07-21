@@ -5,6 +5,7 @@
  * data diri + alamat (provinsi→kota→kecamatan utk RajaOngkir) → pilih kurir →
  * POST /orders → redirect ke halaman pembayaran Xendit.
  */
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
 import {
@@ -20,6 +21,10 @@ import type { ShippingCostOption } from "@keytabee/shared";
 const COURIERS = ["jne", "sicepat", "jnt"]; // sesuaikan dgn yang diaktifkan di Komerce
 
 interface Region { id: number; name: string }
+type FieldErrors = Partial<Record<"name" | "whatsapp" | "address" | "province" | "city" | "district" | "shipping", string>>;
+
+const inputBase = "w-full box-border h-[46px] px-3.5 text-sm bg-keytabee-surface font-sans";
+const inputBorder = (hasError?: boolean) => (hasError ? "border border-keytabee-danger" : "border border-keytabee-border");
 
 export default function CheckoutPage() {
   const { lines, subtotal, totalWeight, clear } = useCart();
@@ -42,6 +47,7 @@ export default function CheckoutPage() {
   const [service, setService] = useState<ShippingCostOption | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   useEffect(() => {
     getProvinces()
@@ -71,20 +77,40 @@ export default function CheckoutPage() {
   }, [districtId, courier, totalWeight]);
 
   if (lines.length === 0) {
-    return <p className="py-16 text-center text-neutral-500">Keranjang kosong.</p>;
+    return (
+      <div className="flex flex-col items-center px-10 py-24 text-center sm:py-32">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" className="mb-4 text-keytabee-disabled sm:mb-5 sm:h-[60px] sm:w-[60px]">
+          <path d="M6 8h12l-1.2 11.2a2 2 0 01-2 1.8H9.2a2 2 0 01-2-1.8L6 8z" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M9 8V6a3 3 0 016 0v2" stroke="currentColor" strokeWidth={1.6} />
+        </svg>
+        <p className="mb-1.5 text-[15px] font-semibold sm:text-lg">Keranjang kamu masih kosong</p>
+        <p className="mb-5 text-[13px] text-keytabee-ink-muted sm:mb-6 sm:text-sm">Yuk lihat koleksi terbaru dulu.</p>
+        <Link href="/" className="bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5">
+          Mulai Belanja
+        </Link>
+      </div>
+    );
   }
 
   const total = subtotal + (service?.cost ?? 0);
-  const canSubmit =
-    form.guestName.length >= 2 &&
-    form.guestPhone.length >= 9 &&
-    form.address.length >= 10 &&
-    districtId > 0 &&
-    service !== null &&
-    !loading;
+
+  const validate = (): FieldErrors => {
+    const errors: FieldErrors = {};
+    if (form.guestName.trim().length < 2) errors.name = "Nama wajib diisi";
+    if (form.guestPhone.trim().length < 9) errors.whatsapp = "No. WhatsApp wajib diisi";
+    if (form.address.trim().length < 10) errors.address = "Alamat wajib diisi";
+    if (!provinceId) errors.province = "Pilih provinsi";
+    if (!cityId) errors.city = "Pilih kota";
+    if (!districtId) errors.district = "Pilih kecamatan";
+    if (!service) errors.shipping = "Pilih kurir & layanan";
+    return errors;
+  };
 
   const submit = async () => {
-    if (!service) return;
+    const errors = validate();
+    setFieldErrors(errors);
+    if (Object.keys(errors).length > 0 || !service) return;
+
     setLoading(true);
     setError(null);
     try {
@@ -109,92 +135,177 @@ export default function CheckoutPage() {
     }
   };
 
-  const input = "w-full rounded border px-3 py-2 text-sm";
+  const sectionLabel = "mb-3 text-xs font-semibold uppercase tracking-wide text-keytabee-ink-muted sm:mb-3.5";
+
+  const summary = (
+    <>
+      <div className="mb-5 text-base font-semibold sm:mb-5">Ringkasan Pesanan</div>
+      <div className="mb-2.5 flex justify-between text-sm text-keytabee-ink-muted sm:mb-4">
+        <span>Subtotal</span>
+        <span>{formatIDR(subtotal)}</span>
+      </div>
+      <div className="mb-4 flex justify-between text-sm text-keytabee-ink-muted sm:mb-4">
+        <span>Ongkir</span>
+        <span>{service ? formatIDR(service.cost) : "—"}</span>
+      </div>
+      <div className="mb-5 flex justify-between border-t border-keytabee-border pt-4 text-base font-semibold sm:mb-6 sm:text-[17px]">
+        <span>Total</span>
+        <span>{formatIDR(total)}</span>
+      </div>
+      {error && <p className="mb-3 text-[13px] text-keytabee-danger">{error}</p>}
+      <button
+        onClick={submit}
+        disabled={loading}
+        className="mb-2.5 h-[52px] w-full bg-keytabee-ink text-[15px] font-semibold text-white disabled:opacity-60 sm:mb-3"
+      >
+        {loading ? "Memproses..." : "Lanjut ke Pembayaran"}
+      </button>
+      <p className="text-center text-[11px] leading-relaxed text-keytabee-ink-muted">
+        Kamu akan diarahkan ke halaman pembayaran Xendit (VA/QRIS/e-wallet/retail).
+      </p>
+    </>
+  );
 
   return (
-    <div className="mx-auto grid max-w-4xl gap-8 md:grid-cols-2">
-      <div className="space-y-4">
-        <h1 className="text-xl font-bold">Checkout</h1>
-        <input className={input} placeholder="Nama lengkap *" value={form.guestName}
-          onChange={(e) => setForm({ ...form, guestName: e.target.value })} />
-        <input className={input} placeholder="No. WhatsApp * (mis. 08123456789)" value={form.guestPhone}
-          onChange={(e) => setForm({ ...form, guestPhone: e.target.value })} />
-        <input className={input} placeholder="Email (opsional)" type="email" value={form.guestEmail}
-          onChange={(e) => setForm({ ...form, guestEmail: e.target.value })} />
+    <div className="grid gap-10 md:grid-cols-[1fr_380px] md:items-start md:gap-16">
+      <div>
+        <h1 className="mb-6 text-xl font-bold tracking-tight sm:mb-8 sm:text-[26px]">Checkout</h1>
 
-        <select className={input} value={provinceId} onChange={(e) => setProvinceId(Number(e.target.value))}>
-          <option value={0}>Pilih Provinsi *</option>
-          {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-        <select className={input} value={cityId} disabled={!cities.length}
-          onChange={(e) => setCityId(Number(e.target.value))}>
-          <option value={0}>Pilih Kota/Kabupaten *</option>
-          {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-        </select>
-        <select className={input} value={districtId} disabled={!districts.length}
-          onChange={(e) => setDistrictId(Number(e.target.value))}>
-          <option value={0}>Pilih Kecamatan *</option>
-          {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-        </select>
-        <textarea className={input} rows={3} placeholder="Alamat lengkap (jalan, RT/RW, patokan) *"
-          value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
-        <input className={input} placeholder="Kode pos (opsional)" value={form.postalCode}
-          onChange={(e) => setForm({ ...form, postalCode: e.target.value })} />
-
-        <div>
-          <div className="mb-2 text-sm font-medium">Kurir</div>
-          <div className="flex gap-2">
-            {COURIERS.map((c) => (
-              <button key={c} onClick={() => setCourier(c)}
-                className={`rounded border px-3 py-1 text-sm uppercase ${courier === c ? "bg-neutral-900 text-white" : ""}`}>
-                {c}
-              </button>
-            ))}
+        <div className={sectionLabel}>Data Pembeli</div>
+        <div className="mb-4 grid gap-3.5 sm:grid-cols-2 sm:gap-4">
+          <div>
+            <input
+              className={`${inputBase} ${inputBorder(!!fieldErrors.name)}`}
+              placeholder="Nama lengkap"
+              value={form.guestName}
+              onChange={(e) => setForm({ ...form, guestName: e.target.value })}
+            />
+            {fieldErrors.name && <p className="mt-1 text-[11px] text-keytabee-danger">{fieldErrors.name}</p>}
+          </div>
+          <div>
+            <input
+              className={`${inputBase} ${inputBorder(!!fieldErrors.whatsapp)}`}
+              placeholder="No. WhatsApp"
+              value={form.guestPhone}
+              onChange={(e) => setForm({ ...form, guestPhone: e.target.value })}
+            />
+            {fieldErrors.whatsapp && <p className="mt-1 text-[11px] text-keytabee-danger">{fieldErrors.whatsapp}</p>}
           </div>
         </div>
+        <p className="mb-4 -mt-2 text-[11px] text-keytabee-ink-muted sm:mb-8">
+          No. WhatsApp adalah kanal notifikasi status pesanan utama.
+        </p>
+        <input
+          className={`${inputBase} ${inputBorder()} mb-6 sm:mb-8`}
+          placeholder="Email (opsional)"
+          type="email"
+          value={form.guestEmail}
+          onChange={(e) => setForm({ ...form, guestEmail: e.target.value })}
+        />
 
-        {options.length > 0 && (
-          <div className="space-y-2">
-            {options.map((o) => (
-              <label key={o.service} className="flex cursor-pointer items-center justify-between rounded border p-3 text-sm">
-                <span>
-                  <input type="radio" name="service" className="mr-2"
-                    checked={service?.service === o.service} onChange={() => setService(o)} />
-                  {o.service} — {o.description} ({o.etd})
-                </span>
-                <span className="font-medium">{formatIDR(o.cost)}</span>
-              </label>
-            ))}
-          </div>
-        )}
+        <div className={sectionLabel}>Alamat</div>
+        <div className="mb-3.5 sm:mb-4">
+          <textarea
+            className={`${inputBase} h-auto box-border resize-none py-3 ${inputBorder(!!fieldErrors.address)}`}
+            rows={3}
+            placeholder="Alamat lengkap (nama jalan, no. rumah, RT/RW)"
+            value={form.address}
+            onChange={(e) => setForm({ ...form, address: e.target.value })}
+          />
+          {fieldErrors.address && <p className="mt-1 text-[11px] text-keytabee-danger">{fieldErrors.address}</p>}
+        </div>
+        <div className="mb-6 grid gap-3 sm:mb-9 sm:grid-cols-3 sm:gap-4">
+          <select
+            className={`${inputBase} ${inputBorder(!!fieldErrors.province)}`}
+            value={provinceId}
+            onChange={(e) => setProvinceId(Number(e.target.value))}
+          >
+            <option value={0}>Provinsi</option>
+            {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </select>
+          <select
+            className={`${inputBase} ${inputBorder(!!fieldErrors.city)} ${!provinceId ? "bg-keytabee-surface-muted text-keytabee-disabled" : ""}`}
+            value={cityId}
+            disabled={!cities.length}
+            onChange={(e) => setCityId(Number(e.target.value))}
+          >
+            <option value={0}>{provinceId ? "Kota / Kabupaten" : "Pilih provinsi dulu"}</option>
+            {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <select
+            className={`${inputBase} ${inputBorder(!!fieldErrors.district)} ${!cityId ? "bg-keytabee-surface-muted text-keytabee-disabled" : ""}`}
+            value={districtId}
+            disabled={!districts.length}
+            onChange={(e) => setDistrictId(Number(e.target.value))}
+          >
+            <option value={0}>{cityId ? "Kecamatan" : "Pilih kota dulu"}</option>
+            {districts.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </select>
+        </div>
+        <input
+          className={`${inputBase} ${inputBorder()} mb-6 sm:mb-9`}
+          placeholder="Kode pos (opsional)"
+          value={form.postalCode}
+          onChange={(e) => setForm({ ...form, postalCode: e.target.value })}
+        />
+
+        <div className={sectionLabel}>Kurir</div>
+        <div className="mb-3 flex gap-2">
+          {COURIERS.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCourier(c)}
+              className={`border px-3.5 py-1.5 text-xs font-medium uppercase sm:text-sm ${
+                courier === c ? "border-keytabee-ink bg-keytabee-ink text-white" : "border-keytabee-border"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-2.5">
+          {options.map((o) => {
+            const isSelected = service?.service === o.service;
+            return (
+              <div
+                key={o.service}
+                onClick={() => setService(o)}
+                className={`flex cursor-pointer items-center justify-between border p-3.5 sm:p-4 ${
+                  isSelected ? "border-keytabee-ink bg-keytabee-surface-muted" : "border-keytabee-border"
+                }`}
+              >
+                <div className="flex items-center gap-2.5 sm:gap-3">
+                  <div
+                    className={`flex h-4 w-4 items-center justify-center rounded-full border-[1.5px] sm:h-[18px] sm:w-[18px] ${
+                      isSelected ? "border-keytabee-ink" : "border-keytabee-disabled"
+                    }`}
+                  >
+                    {isSelected && <div className="h-2 w-2 rounded-full bg-keytabee-ink sm:h-2.5 sm:w-2.5" />}
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-medium sm:text-sm">
+                      {o.courier.toUpperCase()} — {o.service}
+                    </div>
+                    <div className="text-[11px] text-keytabee-ink-muted sm:text-xs">
+                      {o.description} · Estimasi {o.etd}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-[13px] font-medium sm:text-sm">{formatIDR(o.cost)}</div>
+              </div>
+            );
+          })}
+          {fieldErrors.shipping && <p className="text-[11px] text-keytabee-danger">{fieldErrors.shipping}</p>}
+        </div>
+
+        <div className="mt-6 border border-keytabee-border bg-keytabee-surface p-4 md:hidden">
+          {summary}
+        </div>
       </div>
 
-      <div className="h-fit rounded-lg border p-4">
-        <h2 className="mb-4 font-semibold">Ringkasan</h2>
-        {lines.map((l) => (
-          <div key={l.variantId} className="flex justify-between py-1 text-sm">
-            <span>{l.productName} ({l.size}) × {l.qty}</span>
-            <span>{formatIDR(l.price * l.qty)}</span>
-          </div>
-        ))}
-        <div className="mt-3 border-t pt-3 text-sm">
-          <div className="flex justify-between"><span>Subtotal</span><span>{formatIDR(subtotal)}</span></div>
-          <div className="flex justify-between">
-            <span>Ongkir ({(totalWeight / 1000).toFixed(1)} kg)</span>
-            <span>{service ? formatIDR(service.cost) : "—"}</span>
-          </div>
-          <div className="mt-2 flex justify-between text-base font-bold">
-            <span>Total</span><span>{formatIDR(total)}</span>
-          </div>
-        </div>
-        {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-        <button onClick={submit} disabled={!canSubmit}
-          className="mt-4 w-full rounded-lg bg-neutral-900 py-3 text-white disabled:opacity-40">
-          {loading ? "Memproses..." : "Bayar Sekarang"}
-        </button>
-        <p className="mt-2 text-center text-xs text-neutral-500">
-          Kamu akan diarahkan ke halaman pembayaran (VA / QRIS / e-wallet).
-        </p>
+      <div className="hidden border border-keytabee-border bg-keytabee-surface p-7 md:sticky md:top-[100px] md:block">
+        {summary}
       </div>
     </div>
   );
