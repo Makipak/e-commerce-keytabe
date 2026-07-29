@@ -37,6 +37,11 @@ export class OrdersController {
   track(@Param("orderNumber") orderNumber: string) {
     return this.orders.track(orderNumber);
   }
+
+  @Post("track/:orderNumber/complete")
+  confirmReceived(@Param("orderNumber") orderNumber: string) {
+    return this.orders.confirmReceived(orderNumber);
+  }
 }
 
 /** Admin (Refine) */

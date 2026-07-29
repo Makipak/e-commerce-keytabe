@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getProduct } from "@/lib/api";
+import { getProduct, imgSrc } from "@/lib/api";
 import { ProductView } from "./product-view";
 
 export const revalidate = 60;
@@ -16,7 +16,7 @@ export async function generateMetadata({
     title: product.name,
     description: product.description ?? `${product.name} — official aissential merch.`,
     openGraph: {
-      images: product.images[0]?.url ? [product.images[0].url] : [],
+      images: product.images[0]?.url ? [imgSrc(product.images[0].url)] : [],
     },
   };
 }

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getProducts, formatIDR } from "@/lib/api";
+import { getProducts, formatIDR, imgSrc } from "@/lib/api";
 import { CATEGORIES, type Category } from "@keytabee/shared";
 
 export const revalidate = 60; // ISR: katalog refresh tiap 60 detik
@@ -64,7 +64,7 @@ export default async function CatalogPage({
             <div className="relative aspect-square overflow-hidden border border-keytabee-border bg-keytabee-surface-muted transition-transform duration-200 group-hover:scale-[1.01]">
               {p.thumbnailUrl && (
                 <Image
-                  src={p.thumbnailUrl}
+                  src={imgSrc(p.thumbnailUrl)}
                   alt={p.name}
                   fill
                   sizes="(max-width: 640px) 50vw, 25vw"

@@ -1,4 +1,4 @@
-# Perancangan Sistem E-Commerce Keytabee (aissential)
+# Perancangan Sistem E-Commerce Aissential (aissential)
 
 > Dokumen perancangan teknis. Status: disepakati 8 Juli 2026.
 > Referensi UX: ncrsport.com (guest checkout). Payment: Xendit. Ongkir: RajaOngkir (Komerce).

@@ -1,4 +1,4 @@
-# Keytabee E-Commerce (aissential)
+# Aissential E-Commerce (aissential)
 
 Monorepo Turborepo: storefront guest-checkout (referensi UX: ncrsport.com) + admin panel + REST API.
 Dokumen perancangan lengkap: [`docs/PERANCANGAN.md`](docs/PERANCANGAN.md).

@@ -13,6 +13,9 @@ import { ShippingService } from "../shipping/shipping.service";
 import { FonnteService } from "../notifications/fonnte.service";
 import { CreateOrderDto } from "./dto/create-order.dto";
 
+/** Auto-complete order SHIPPED kalau customer tidak konfirmasi manual dalam N hari */
+const AUTO_COMPLETE_DAYS = 7;
+
 @Injectable()
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
@@ -120,7 +123,7 @@ export class OrdersService {
         orderNumber,
         amount: total,
         payerEmail: dto.guestEmail,
-        description: `Order ${orderNumber} - Keytabee`,
+        description: `Order ${orderNumber} - Aissential`,
       });
       await this.prisma.order.update({
         where: { id: order.id },
@@ -164,6 +167,23 @@ export class OrdersService {
     };
   }
 
+  /** Konfirmasi "pesanan diterima" oleh customer sendiri lewat halaman tracking publik */
+  async confirmReceived(orderNumber: string) {
+    const order = await this.prisma.order.findUnique({ where: { orderNumber } });
+    if (!order) throw new NotFoundException("Order tidak ditemukan");
+    if (order.status !== OrderStatus.SHIPPED) {
+      throw new BadRequestException(
+        "Pesanan cuma bisa dikonfirmasi selesai saat statusnya sedang dikirim",
+      );
+    }
+    const updated = await this.prisma.order.update({
+      where: { id: order.id },
+      data: { status: OrderStatus.COMPLETED },
+    });
+    void this.wa.notifyOrderCompleted(updated);
+    return { orderNumber: updated.orderNumber, status: updated.status };
+  }
+
   // ===== Dipanggil webhook Xendit (harus idempotent) =====
 
   async markPaid(orderNumber: string, paidAt: Date) {
@@ -184,10 +204,11 @@ export class OrdersService {
   async markExpired(orderNumber: string) {
     const order = await this.prisma.order.findUnique({
       where: { orderNumber },
-      select: { id: true, status: true },
+      select: { id: true, status: true, guestName: true, guestPhone: true },
     });
     if (!order || order.status !== OrderStatus.PENDING) return; // idempotent
     await this.releaseStockAndSetStatus(order.id, OrderStatus.EXPIRED);
+    void this.wa.notifyOrderExpired({ orderNumber, guestName: order.guestName, guestPhone: order.guestPhone });
   }
 
   /** Kembalikan stok + set status akhir, dalam satu transaksi */
@@ -217,11 +238,33 @@ export class OrdersService {
   async sweepExpiredOrders() {
     const stale = await this.prisma.order.findMany({
       where: { status: OrderStatus.PENDING, expiredAt: { lt: new Date() } },
-      select: { id: true, orderNumber: true },
+      select: { id: true, orderNumber: true, guestName: true, guestPhone: true },
     });
     for (const o of stale) {
       this.logger.log(`Sweeper: release order expired ${o.orderNumber}`);
       await this.releaseStockAndSetStatus(o.id, OrderStatus.EXPIRED);
+      void this.wa.notifyOrderExpired(o);
+    }
+  }
+
+  /**
+   * Sweeper: order SHIPPED yang tidak dikonfirmasi customer dalam
+   * AUTO_COMPLETE_DAYS hari otomatis ditandai selesai (mirror Shopee/Tokopedia).
+   */
+  @Cron(CronExpression.EVERY_HOUR)
+  async sweepAutoCompleteOrders() {
+    const threshold = new Date();
+    threshold.setDate(threshold.getDate() - AUTO_COMPLETE_DAYS);
+    const stale = await this.prisma.order.findMany({
+      where: { status: OrderStatus.SHIPPED, shippedAt: { lt: threshold } },
+    });
+    for (const o of stale) {
+      this.logger.log(`Sweeper: auto-complete order ${o.orderNumber}`);
+      const updated = await this.prisma.order.update({
+        where: { id: o.id },
+        data: { status: OrderStatus.COMPLETED },
+      });
+      void this.wa.notifyOrderCompleted(updated);
     }
   }
 
@@ -248,7 +291,10 @@ export class OrdersService {
   findOneAdmin(id: string) {
     return this.prisma.order.findUniqueOrThrow({
       where: { id },
-      include: { items: true },
+      include: {
+        items: true,
+        waNotifications: { orderBy: { createdAt: "desc" } },
+      },
     });
   }
 
@@ -277,16 +323,27 @@ export class OrdersService {
     // Cancel dari PENDING → kembalikan stok
     if (status === OrderStatus.CANCELLED && order.status === OrderStatus.PENDING) {
       await this.releaseStockAndSetStatus(order.id, OrderStatus.CANCELLED);
+      void this.wa.notifyOrderCancelled(order);
       return this.findOneAdmin(id);
     }
 
     const updated = await this.prisma.order.update({
       where: { id },
-      data: { status, ...(waybill ? { waybill } : {}) },
+      data: {
+        status,
+        ...(waybill ? { waybill } : {}),
+        ...(status === OrderStatus.SHIPPED ? { shippedAt: new Date() } : {}),
+      },
     });
 
     if (status === OrderStatus.SHIPPED && waybill) {
       void this.wa.notifyOrderShipped({ ...updated, waybill });
+    } else if (status === OrderStatus.PROCESSING) {
+      void this.wa.notifyOrderProcessing(updated);
+    } else if (status === OrderStatus.COMPLETED) {
+      void this.wa.notifyOrderCompleted(updated);
+    } else if (status === OrderStatus.CANCELLED) {
+      void this.wa.notifyOrderCancelled(updated);
     }
     return updated;
   }

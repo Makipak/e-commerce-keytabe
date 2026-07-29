@@ -111,13 +111,29 @@ model Order {
   xenditInvoiceUrl String?
   paidAt           DateTime?
   expiredAt        DateTime? // basis auto-release stok
+  shippedAt        DateTime? // basis auto-complete kalau customer tidak konfirmasi manual
 
-  items     OrderItem[]
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  items           OrderItem[]
+  waNotifications WaNotificationLog[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
   @@index([status])
   @@index([createdAt])
+}
+
+/** Log tiap percobaan kirim notifikasi WA — buat admin cek tanpa bongkar dashboard Fonnte */
+model WaNotificationLog {
+  id           String   @id @default(cuid())
+  orderNumber  String
+  order        Order    @relation(fields: [orderNumber], references: [orderNumber], onDelete: Cascade)
+  event        String // PAID | PROCESSING | SHIPPED | COMPLETED | CANCELLED | EXPIRED
+  target       String // nomor WA tujuan
+  success      Boolean
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  @@index([orderNumber])
 }
 
 model OrderItem {

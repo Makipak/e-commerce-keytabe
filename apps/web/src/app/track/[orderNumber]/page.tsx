@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { trackOrder, formatIDR } from "@/lib/api";
 import { CopyWaybillButton } from "@/components/copy-waybill-button";
+import { ConfirmReceivedButton } from "@/components/confirm-received-button";
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Menunggu Pembayaran",
@@ -99,6 +100,8 @@ export default async function TrackPage({
             </div>
           </div>
         )}
+
+        {order.status === "SHIPPED" && <ConfirmReceivedButton orderNumber={order.orderNumber} />}
 
         {order.status === "PENDING" && order.invoiceUrl && (
           <a href={order.invoiceUrl} className="mb-6 block h-[50px] w-full bg-keytabee-ink text-center text-[15px] font-semibold leading-[50px] text-white sm:mb-9">

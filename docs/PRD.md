@@ -1,4 +1,4 @@
-# PRD — Desain Frontend Storefront Keytabee (aissential)
+# PRD — Desain Frontend Storefront Aissential (aissential)
 
 > Dokumen ini untuk brief desain (dipakai dengan Claude untuk menghasilkan desain UI/UX).
 > Scope: **storefront pembeli** (`apps/web`) saja. Admin panel (`apps/admin`, Refine+Ant Design) **di luar scope** dokumen ini.
@@ -8,7 +8,7 @@
 
 ## 1. Ringkasan Produk
 
-Keytabee (brand: **aissential**) adalah brand apparel/streetwear (hoodie, t-shirt, crewneck, polo, jacket, cap) yang jual langsung ke konsumen lewat storefront online. Belanja **tanpa akun** (full guest checkout) — pembeli isi nama, WA, alamat, pilih ongkir, lalu bayar via Xendit (VA/QRIS/e-wallet/retail). Setelah bayar, pembeli dapat notifikasi WhatsApp + bisa cek status pesanan lewat halaman tracking publik.
+Aissential (brand: **aissential**) adalah brand apparel/streetwear (hoodie, t-shirt, crewneck, polo, jacket, cap) yang jual langsung ke konsumen lewat storefront online. Belanja **tanpa akun** (full guest checkout) — pembeli isi nama, WA, alamat, pilih ongkir, lalu bayar via Xendit (VA/QRIS/e-wallet/retail). Setelah bayar, pembeli dapat notifikasi WhatsApp + bisa cek status pesanan lewat halaman tracking publik.
 
 Stack teknis storefront: Next.js 15 (App Router, SSR/ISR), Tailwind CSS. Konsumsi REST API dari `apps/api` (NestJS). Semua business logic (harga, ongkir, stok) divalidasi di server — frontend murni presentasi + fetch data.
 
@@ -102,7 +102,7 @@ Di luar 6 halaman ini (mis. halaman "Tentang", size guide berdiri sendiri) tidak
 
 ### 5.1 Header (global, sticky)
 
-- Logo/wordmark "keytabee" kiri, nav kanan: link Katalog, ikon cart dengan badge jumlah item.
+- Logo/wordmark "Aissential" kiri, nav kanan: link Katalog, ikon cart dengan badge jumlah item.
 - Search bar: bisa collapse jadi ikon di mobile, expand di desktop (produk-produk streetwear biasa dicari by nama desain).
 - Sticky dengan backdrop blur tipis saat scroll (sudah ada, pertahankan pola ini, perhalus visualnya).
 

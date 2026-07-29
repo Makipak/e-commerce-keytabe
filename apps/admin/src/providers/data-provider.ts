@@ -7,12 +7,16 @@ import { getToken } from "./auth-provider";
 
 const API = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
 
+// Lewati halaman peringatan interstitial ngrok free plan saat demo online
+const NGROK_HEADERS = { "ngrok-skip-browser-warning": "true" };
+
 async function request(path: string, options: RequestInit = {}) {
   const res = await fetch(`${API}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${getToken()}`,
+      ...NGROK_HEADERS,
       ...options.headers,
     },
   });
@@ -72,13 +76,28 @@ export const dataProvider: DataProvider = {
 /** Helper untuk endpoint non-CRUD (mis. update status order) */
 export const apiRequest = request;
 
+/**
+ * Ubah URL gambar absolut dari API (domain ngrok) jadi path relatif /uploads/foo.jpg
+ * yang di-proxy oleh dev server admin sendiri (lihat vite.config.ts) — <Image> tidak
+ * bisa kirim header custom, jadi request lintas-domain ke tunnel API selalu kena
+ * halaman interstitial ngrok, bukan gambar.
+ */
+export function imgSrc(url: string | null | undefined): string {
+  if (!url) return "";
+  try {
+    return new URL(url).pathname;
+  } catch {
+    return url;
+  }
+}
+
 /** Upload file gambar → { url, filename }. Jangan set Content-Type manual (FormData). */
 export async function uploadFile(file: File): Promise<{ url: string; filename: string }> {
   const formData = new FormData();
   formData.append("file", file);
   const res = await fetch(`${API}/admin/uploads`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${getToken()}` },
+    headers: { Authorization: `Bearer ${getToken()}`, ...NGROK_HEADERS },
     body: formData,
   });
   if (!res.ok) {

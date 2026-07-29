@@ -58,9 +58,18 @@ export class ShippingService {
     });
   }
 
+  // Kelas layanan kargo/trucking (mis. JNE JTR) tidak relevan untuk paket kecil toko ini.
+  private readonly EXCLUDED_SERVICE_KEYWORDS = ["trucking", "cargo", "kargo", "jtr"];
+
+  private isExcludedService(service: string, description: string): boolean {
+    const text = `${service} ${description}`.toLowerCase();
+    return this.EXCLUDED_SERVICE_KEYWORDS.some((kw) => text.includes(kw));
+  }
+
   /**
    * Hitung ongkir. origin = SHIPPING_ORIGIN_DISTRICT_ID (kecamatan asal toko).
-   * Return: daftar layanan { courier, service, description, cost, etd }.
+   * Return: daftar layanan { courier, service, description, cost, etd }, sudah
+   * difilter dari layanan kargo/trucking yang tidak relevan untuk paket kecil.
    */
   async calculateCost(params: { districtId: number; weightGram: number; courier: string }) {
     const origin = process.env.SHIPPING_ORIGIN_DISTRICT_ID;
@@ -74,13 +83,15 @@ export class ShippingService {
       }),
     );
     // TODO: sesuaikan mapping dgn bentuk response Komerce sebenarnya
-    return (res.data.data ?? []).map((row: any) => ({
-      courier: params.courier,
-      service: row.service,
-      description: row.description,
-      cost: row.cost,
-      etd: row.etd,
-    }));
+    return (res.data.data ?? [])
+      .map((row: any) => ({
+        courier: params.courier,
+        service: row.service,
+        description: row.description,
+        cost: row.cost,
+        etd: row.etd,
+      }))
+      .filter((opt: any) => !this.isExcludedService(opt.service ?? "", opt.description ?? ""));
   }
 
   /** Dipakai OrdersService: re-validasi ongkir yang diklaim client */

@@ -19,7 +19,7 @@ import {
 import { PlusOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { CATEGORIES, COLORS, SIZES } from "@keytabee/shared";
-import { apiRequest, uploadFile } from "../../providers/data-provider";
+import { apiRequest, uploadFile, imgSrc } from "../../providers/data-provider";
 
 const colorOptions = Object.entries(COLORS).map(([value, label]) => ({ value, label }));
 
@@ -202,7 +202,7 @@ export function ProductEdit() {
               key={img.id}
               size="small"
               style={{ width: 140 }}
-              cover={<Image src={img.url} height={120} style={{ objectFit: "cover" }} />}
+              cover={<Image src={imgSrc(img.url)} height={120} style={{ objectFit: "cover" }} />}
               actions={[
                 <Popconfirm
                   key="del"

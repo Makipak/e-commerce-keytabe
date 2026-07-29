@@ -110,6 +110,30 @@ export function OrderShow() {
             />
           </Table>
 
+          <div style={{ marginTop: 24, marginBottom: 8, fontWeight: 600 }}>Notifikasi WhatsApp</div>
+          <Table
+            dataSource={record.waNotifications ?? []}
+            rowKey="id"
+            pagination={false}
+            size="small"
+            locale={{ emptyText: "Belum ada notifikasi WA terkirim" }}
+          >
+            <Table.Column
+              dataIndex="createdAt"
+              title="Waktu"
+              render={(v: string) => new Date(v).toLocaleString("id-ID")}
+            />
+            <Table.Column dataIndex="event" title="Event" />
+            <Table.Column dataIndex="target" title="Tujuan" />
+            <Table.Column
+              dataIndex="success"
+              title="Status"
+              render={(v: boolean, r: any) =>
+                v ? <Tag color="success">Terkirim</Tag> : <Tag color="error">Gagal: {r.errorMessage}</Tag>
+              }
+            />
+          </Table>
+
           <Modal
             open={modalFor !== null}
             title="Input No. Resi"

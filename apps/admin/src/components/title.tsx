@@ -3,7 +3,7 @@ import { ThemedTitleV2 } from "@refinedev/antd";
 export const Title = ({ collapsed }: { collapsed: boolean }) => (
   <ThemedTitleV2
     collapsed={collapsed}
-    text="Keytabee Admin"
+    text="Aissential Admin"
     icon={
       <div
         style={{

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { ColorCode, ProductDetail } from "@keytabee/shared";
-import { formatIDR } from "@/lib/api";
+import { formatIDR, imgSrc } from "@/lib/api";
 import { useCart } from "@/lib/cart";
 
 const COLOR_HEX: Record<ColorCode, string> = {
@@ -51,7 +51,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
       size: selected.size,
       price: selected.price,
       weightGram: product.weightGram,
-      imageUrl: images[activeImage]?.url ?? null,
+      imageUrl: imgSrc(images[activeImage]?.url) || null,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -65,7 +65,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
             {images.length > 0 ? (
               <Image
                 key={images[activeImage].id}
-                src={images[activeImage].url}
+                src={imgSrc(images[activeImage].url)}
                 alt={`${product.name} ${images[activeImage].view} ${images[activeImage].type}`}
                 fill
                 className="object-cover"
@@ -115,7 +115,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
                     i === activeImage ? "border-keytabee-ink" : "border-keytabee-border opacity-70"
                   }`}
                 >
-                  <Image src={img.url} alt={`${product.name} ${img.view} ${img.type}`} fill className="object-cover" sizes="88px" />
+                  <Image src={imgSrc(img.url)} alt={`${product.name} ${img.view} ${img.type}`} fill className="object-cover" sizes="88px" />
                 </button>
               ))}
             </div>
