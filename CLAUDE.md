@@ -65,9 +65,14 @@ bash scripts/demo/stop.sh
 
 ### Kalau Windows tanpa WSL2
 
-Skrip `start.sh`/`stop.sh` pakai `fuser`, `ss`, `pg_isready` yang tidak ada di Git Bash bawaan Windows — akan gagal di tengah jalan. Opsinya:
-- **Disarankan**: install WSL2 (`wsl --install` di PowerShell admin), clone/jalankan repo dari dalam WSL, jalankan `scripts/demo/start.sh` dari sana persis seperti Linux.
-- Kalau tetap mau native Windows tanpa WSL: jalankan `ngrok start --all --config "%USERPROFILE%\.config\ngrok\ngrok.yml" --config scripts\demo\ngrok-tunnels.yml` manual, lalu isi 5 env di atas manual dari URL yang muncul di dashboard `http://127.0.0.1:4040`, restart `pnpm dev` sendiri. Lebih ribet & rawan lupa satu env — WSL2 jauh lebih aman.
+Skrip `start.sh`/`stop.sh` pakai `fuser`, `ss`, `pg_isready` yang tidak ada di Git Bash bawaan Windows — akan gagal di tengah jalan. Pakai port PowerShell-nya yang setara 1:1:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts\demo\start.ps1   # nyalakan demo
+powershell -ExecutionPolicy Bypass -File scripts\demo\stop.ps1    # matikan demo
+```
+
+Beda dengan versi bash: cek Postgres pakai host/port dari `DATABASE_URL` (tidak hardcode 5433), sinkron gambar DB pakai `prisma db execute` (tidak butuh `psql`), dan otomatis menemukan ngrok versi MSIX/Store lewat alias `%LOCALAPPDATA%\Microsoft\WindowsApps`. Config token dibaca dari `%LOCALAPPDATA%\ngrok\ngrok.yml` (lokasi default `ngrok config add-authtoken` di Windows) — tetap di luar repo.
 
 ### Catatan penting
 

@@ -11,3 +11,6 @@ coverage/
 apps/api/uploads/
 scripts/demo/.run/
 secret_api_key.csv
+
+*.md
+!README.md
