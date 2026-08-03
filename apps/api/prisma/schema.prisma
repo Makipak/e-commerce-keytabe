@@ -32,22 +32,26 @@ enum Category {
   PLO
   JKT
   CAP
+  LNG // Longsleeve
+  RGY // Rugby Shirt
+  OTH // kategori custom — nama aslinya disimpan di Product.categoryLabel
 }
 
 model Product {
-  id          String           @id @default(cuid())
-  slug        String           @unique
-  name        String
-  description String?
-  category    Category
-  designNo    Int // urutan desain dalam kategori — dipakai untuk generate SKU varian (AIS-{kategori}{designNo}-{warna}-{size})
-  basePrice   Int // IDR utuh
-  weightGram  Int // untuk ongkir
-  isActive    Boolean          @default(true)
-  variants    ProductVariant[]
-  images      ProductImage[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  id            String           @id @default(cuid())
+  slug          String           @unique
+  name          String
+  description   String?
+  category      Category
+  categoryLabel String? // nama kategori custom, hanya dipakai kalau category = OTH
+  designNo      Int // urutan desain dalam kategori — dipakai untuk generate SKU varian (AIS-{kategori}{designNo}-{warna}-{size})
+  basePrice     Int // IDR utuh
+  weightGram    Int // untuk ongkir
+  isActive      Boolean          @default(true)
+  variants      ProductVariant[]
+  images        ProductImage[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 }
 
 model ProductVariant {
@@ -80,9 +84,9 @@ model ProductImage {
 }
 
 model Order {
-  id             String      @id @default(cuid())
-  orderNumber    String      @unique // KTB-20260708-0001
-  status         OrderStatus @default(PENDING)
+  id          String      @id @default(cuid())
+  orderNumber String      @unique // KTB-20260708-0001
+  status      OrderStatus @default(PENDING)
 
   // Guest checkout (userId disiapkan untuk fase 2 akun user)
   userId     String?
@@ -122,7 +126,9 @@ model Order {
   @@index([createdAt])
 }
 
-/** Log tiap percobaan kirim notifikasi WA — buat admin cek tanpa bongkar dashboard Fonnte */
+/**
+ * Log tiap percobaan kirim notifikasi WA — buat admin cek tanpa bongkar dashboard Fonnte
+ */
 model WaNotificationLog {
   id           String   @id @default(cuid())
   orderNumber  String

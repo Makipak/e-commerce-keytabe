@@ -24,10 +24,11 @@ import { apiRequest, uploadFile, imgSrc } from "../../providers/data-provider";
 const colorOptions = Object.entries(COLORS).map(([value, label]) => ({ value, label }));
 
 export function ProductEdit() {
-  const { formProps, saveButtonProps, query } = useForm({ resource: "products" });
+  const { form, formProps, saveButtonProps, query } = useForm({ resource: "products" });
   const { message } = AntdApp.useApp();
   const product = query?.data?.data;
   const refetch = () => query?.refetch();
+  const category = Form.useWatch("category", form);
 
   // ===== state form gambar =====
   const [imgMeta, setImgMeta] = useState({ colorCode: "BLK", view: "front", type: "flat" });
@@ -125,7 +126,16 @@ export function ProductEdit() {
 
   return (
     <Edit saveButtonProps={saveButtonProps} title="Edit Produk">
-      <Form {...formProps} layout="vertical">
+      <Form
+        {...formProps}
+        layout="vertical"
+        onValuesChange={(changed, all) => {
+          if ("category" in changed && changed.category !== "OTH") {
+            form.setFieldValue("categoryLabel", undefined);
+          }
+          formProps.onValuesChange?.(changed, all);
+        }}
+      >
         <Form.Item label="Nama" name="name" rules={[{ required: true }]}>
           <Input />
         </Form.Item>
@@ -134,6 +144,16 @@ export function ProductEdit() {
             options={Object.entries(CATEGORIES).map(([value, label]) => ({ value, label }))}
           />
         </Form.Item>
+        {category === "OTH" && (
+          <Form.Item
+            label="Nama Kategori"
+            name="categoryLabel"
+            rules={[{ required: true, message: "isi nama kategorinya" }]}
+            extra='Kategori "Lainnya" — nama ini yang tampil di admin & toko'
+          >
+            <Input placeholder="mis. Sweatpants, Tote Bag" />
+          </Form.Item>
+        )}
         <Form.Item label="Deskripsi" name="description">
           <Input.TextArea rows={4} />
         </Form.Item>

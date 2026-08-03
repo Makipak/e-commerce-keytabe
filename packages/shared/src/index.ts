@@ -21,6 +21,9 @@ export const CATEGORIES = {
   PLO: "Polo",
   JKT: "Jacket",
   CAP: "Cap",
+  LNG: "Longsleeve",
+  RGY: "Rugby Shirt",
+  OTH: "Lainnya",
 } as const;
 export type Category = keyof typeof CATEGORIES;
 
@@ -30,6 +33,7 @@ export const COLORS = {
   BLU: "Blue",
   GRY: "Dark Grey",
   NVY: "Navy",
+  SKB: "Sky Blue",
 } as const;
 export type ColorCode = keyof typeof COLORS;
 
@@ -70,6 +74,7 @@ export interface ProductListItem {
   slug: string;
   name: string;
   category: Category;
+  categoryLabel: string | null;
   basePrice: number;
   thumbnailUrl: string | null;
   colorCodes: ColorCode[];
@@ -100,6 +105,7 @@ export interface ProductDetail {
   name: string;
   description: string | null;
   category: Category;
+  categoryLabel: string | null;
   basePrice: number;
   weightGram: number;
   variants: ProductVariantDto[];

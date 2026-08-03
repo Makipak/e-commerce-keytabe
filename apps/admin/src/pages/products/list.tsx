@@ -27,7 +27,9 @@ export function ProductList() {
         <Table.Column
           dataIndex="category"
           title="Kategori"
-          render={(v: keyof typeof CATEGORIES) => CATEGORIES[v] ?? v}
+          render={(v: keyof typeof CATEGORIES, record: { categoryLabel?: string | null }) =>
+            v === "OTH" && record.categoryLabel ? record.categoryLabel : (CATEGORIES[v] ?? v)
+          }
         />
         <Table.Column
           dataIndex="basePrice"

@@ -64,6 +64,7 @@ export class ProductsService {
         slug: p.slug,
         name: p.name,
         category: p.category,
+        categoryLabel: p.categoryLabel,
         basePrice: p.basePrice,
         thumbnailUrl: p.images.find((i) => i.type === "flat")?.url ?? p.images[0]?.url ?? null,
         colorCodes: [...new Set(p.variants.map((v) => v.colorCode))],
@@ -123,8 +124,14 @@ export class ProductsService {
   }
 
   async create(data: Omit<Prisma.ProductCreateInput, "designNo">) {
+    // Kategori "Lainnya" (OTH) dipakai bareng oleh banyak nama kategori custom yang beda —
+    // scope nomor desain per categoryLabel juga, biar SKU tiap kategori custom mulai dari 1
+    // lagi, bukan nyambung dengan kategori custom lain yang kebetulan sama-sama OTH.
     const last = await this.prisma.product.findFirst({
-      where: { category: data.category },
+      where:
+        data.category === "OTH"
+          ? { category: "OTH", categoryLabel: data.categoryLabel as string | null }
+          : { category: data.category },
       orderBy: { designNo: "desc" },
       select: { designNo: true },
     });
