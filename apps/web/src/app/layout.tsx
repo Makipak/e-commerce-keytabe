@@ -48,7 +48,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <footer className="border-t border-keytabee-border">
             <div className="mx-auto flex max-w-[1280px] items-center justify-between px-5 py-8 text-xs text-keytabee-ink-muted sm:px-10 sm:text-[13px]">
               <span>© {new Date().getFullYear()} Aissential</span>
-              <span className="text-keytabee-accent">Instagram</span>
+              <a
+                href="https://www.instagram.com/aissential.co?igsh=MXR5N296ZG1xMnk5dw=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-keytabee-accent hover:underline"
+              >
+                Instagram
+              </a>
             </div>
           </footer>
         </CartProvider>

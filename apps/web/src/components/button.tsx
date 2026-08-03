@@ -38,15 +38,15 @@ function tone(variant: Variant, active: boolean, disabled: boolean) {
   }
   switch (variant) {
     case "primary":
-      return "border border-white/15 bg-keytabee-ink/80 text-white shadow-[0_8px_24px_-10px_rgba(1,35,64,0.55)] hover:bg-keytabee-ink/90";
+      return "border border-white/15 bg-keytabee-ink/80 text-white hover:bg-keytabee-ink/90";
     case "secondary":
-      return "border border-keytabee-border/70 bg-white/40 text-keytabee-ink shadow-[0_4px_16px_-8px_rgba(1,35,64,0.25)] hover:bg-white/60";
+      return "border border-keytabee-border/70 bg-white/40 text-keytabee-ink hover:bg-white/60";
     case "toggle":
       return active
-        ? "border border-white/15 bg-keytabee-ink/80 text-white shadow-[0_6px_18px_-10px_rgba(1,35,64,0.5)]"
+        ? "border border-white/15 bg-keytabee-ink/80 text-white"
         : "border border-white/50 bg-white/35 text-keytabee-ink hover:bg-white/55";
     case "icon":
-      return "border border-white/50 bg-white/50 text-keytabee-ink shadow-[0_4px_14px_-6px_rgba(1,35,64,0.35)] hover:bg-white/70";
+      return "border border-white/50 bg-white/50 text-keytabee-ink hover:bg-white/70";
   }
 }
 
