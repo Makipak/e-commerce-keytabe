@@ -10,6 +10,7 @@ coverage/
 .DS_Store
 apps/api/uploads/
 scripts/demo/.run/
+scripts/demo/*.ps1
 secret_api_key.csv
 
 *.md
