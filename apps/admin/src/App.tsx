@@ -25,7 +25,7 @@ import { OrderShow } from "./pages/orders/show";
 export function App() {
   return (
     <BrowserRouter>
-      <ConfigProvider theme={{ token: { colorPrimary: "#171717" } }}>
+      <ConfigProvider theme={{ token: { colorPrimary: "#0572ff" } }}>
         <AntdApp>
           <Refine
             routerProvider={routerProvider}

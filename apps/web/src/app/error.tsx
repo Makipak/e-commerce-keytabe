@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/button";
+
 export default function Error({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
     <div className="flex flex-col items-center px-10 py-20 text-center sm:py-32">
@@ -12,9 +14,9 @@ export default function Error({ reset }: { error: Error & { digest?: string }; r
       <p className="mb-5 max-w-sm text-[13px] leading-relaxed text-keytabee-ink-muted sm:mb-6 sm:text-sm">
         Produk tidak ditemukan, atau server sedang bermasalah. Coba lagi sebentar lagi.
       </p>
-      <button onClick={reset} className="bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5">
+      <Button onClick={reset} variant="primary">
         Coba Lagi
-      </button>
+      </Button>
     </div>
   );
 }

@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Aissential — aissential", template: "%s | Aissential" },
+  title: { default: "Aissential Ecommerce", template: "%s | Aissential" },
   description: "Official merchandise aissential — apparel & accessories.",
 };
 
@@ -25,8 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CartProvider>
           <header className="sticky top-0 z-20 border-b border-keytabee-border bg-keytabee-bg/85 backdrop-blur">
             <div className="mx-auto flex max-w-[1280px] items-center justify-between gap-6 px-5 py-4 sm:px-10">
-              <Link href="/" className="shrink-0 text-lg font-bold tracking-tight sm:text-[19px]">
-                Aissential
+              <Link href="/" className="shrink-0" aria-label="Aissential">
+                <img
+                  src="/brand/aissential-logotype-navy.svg"
+                  alt="Aissential"
+                  className="h-5 w-auto sm:h-6"
+                />
               </Link>
               <nav className="flex flex-1 items-center justify-end gap-4 sm:gap-9">
                 <Link href="/" className="hidden text-sm font-medium sm:block">

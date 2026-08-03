@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/button";
 
 export function TrackOrderForm() {
   const router = useRouter();
@@ -24,12 +25,9 @@ export function TrackOrderForm() {
         onChange={(e) => setOrderNumber(e.target.value)}
         className="h-[50px] flex-1 border border-keytabee-border bg-keytabee-surface-muted px-4 text-[15px] placeholder:text-keytabee-ink-muted focus:outline-none"
       />
-      <button
-        type="submit"
-        className="h-[50px] shrink-0 bg-keytabee-ink px-7 text-sm font-semibold text-white"
-      >
+      <Button type="submit" variant="primary" size="lg" className="shrink-0">
         Lacak Pesanan
-      </button>
+      </Button>
     </form>
   );
 }

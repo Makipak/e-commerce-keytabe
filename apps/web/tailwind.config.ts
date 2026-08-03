@@ -6,14 +6,14 @@ export default {
     extend: {
       colors: {
         keytabee: {
-          bg: "#FAFAF8",
+          bg: "#F8FAFC",
           surface: "#FFFFFF",
-          "surface-muted": "#F2F0EB",
-          ink: "#171717",
-          "ink-muted": "#6B6B65",
-          disabled: "#C9C5B8",
-          border: "#E6E3DC",
-          accent: "#A8501F",
+          "surface-muted": "#EEF2F6",
+          ink: "#012340",
+          "ink-muted": "#5B6B7A",
+          disabled: "#C3CDD6",
+          border: "#DCE3EA",
+          accent: "#0572FF",
           success: "#3A6B4A",
           warning: "#B8862E",
           danger: "#B3352C",

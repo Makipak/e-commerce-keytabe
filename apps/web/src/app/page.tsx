@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getProducts, formatIDR, imgSrc } from "@/lib/api";
 import { CATEGORIES, type Category } from "@keytabee/shared";
+import { Button } from "@/components/button";
 
 export const revalidate = 60; // ISR: katalog refresh tiap 60 detik
 
@@ -15,46 +16,44 @@ export default async function CatalogPage({
 
   return (
     <div>
-      <section className="relative mb-10 flex aspect-[16/11] items-end overflow-hidden border border-dashed border-keytabee-disabled bg-keytabee-surface-muted p-6 sm:mb-14 sm:aspect-[16/6] sm:p-12">
-        <div className="max-w-md">
-          <h1 className="mb-2 text-[26px] font-bold leading-[1.15] tracking-tight sm:mb-3.5 sm:text-5xl sm:leading-[1.05]">
+      <section className="relative mb-10 flex aspect-[16/11] items-end overflow-hidden sm:mb-14 sm:aspect-[16/6]">
+        <picture>
+          <source media="(min-width: 640px)" srcSet="/banner/desktop.webp" />
+          <img
+            src="/banner/mobile.webp"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        <div className="relative max-w-md p-6 sm:p-12">
+          <h1 className="mb-2 text-[26px] font-bold leading-[1.15] tracking-tight text-white sm:mb-3.5 sm:text-5xl sm:leading-[1.05]">
             Koleksi Terbaru
           </h1>
-          <p className="mb-4 text-sm leading-relaxed text-keytabee-ink-muted sm:mb-5 sm:text-[15px]">
+          <p className="mb-4 text-sm leading-relaxed text-white/80 sm:mb-5 sm:text-[15px]">
             Desain baru untuk musim ini — dibuat lebih ringan, lebih rapi.
           </p>
-          <a
-            href="#katalog"
-            className="inline-block bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5"
-          >
+          <Button href="#katalog" variant="primary">
             Lihat Koleksi
-          </a>
+          </Button>
         </div>
       </section>
 
       <div id="katalog" className="mb-5 flex gap-2 overflow-x-auto pb-1 sm:mb-6 sm:flex-wrap sm:gap-2.5">
-        <Link
-          href="/"
-          className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] font-medium sm:px-5 sm:py-2.5 sm:text-sm ${
-            !params.category
-              ? "border-keytabee-ink bg-keytabee-ink text-white"
-              : "border-keytabee-border bg-keytabee-surface text-keytabee-ink"
-          }`}
-        >
+        <Button href="/" variant="toggle" active={!params.category} size="sm" className="shrink-0 whitespace-nowrap">
           Semua
-        </Link>
+        </Button>
         {(Object.keys(CATEGORIES) as Category[]).map((c) => (
-          <Link
+          <Button
             key={c}
             href={`/?category=${c}`}
-            className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[13px] font-medium sm:px-5 sm:py-2.5 sm:text-sm ${
-              params.category === c
-                ? "border-keytabee-ink bg-keytabee-ink text-white"
-                : "border-keytabee-border bg-keytabee-surface text-keytabee-ink"
-            }`}
+            variant="toggle"
+            active={params.category === c}
+            size="sm"
+            className="shrink-0 whitespace-nowrap"
           >
             {CATEGORIES[c]}
-          </Link>
+          </Button>
         ))}
       </div>
 

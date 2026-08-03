@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import type { ColorCode, ProductDetail } from "@keytabee/shared";
 import { formatIDR, imgSrc } from "@/lib/api";
 import { useCart } from "@/lib/cart";
+import { Button } from "@/components/button";
 
 const COLOR_HEX: Record<ColorCode, string> = {
   BLK: "#171717",
@@ -12,6 +13,7 @@ const COLOR_HEX: Record<ColorCode, string> = {
   BLU: "#3B5A78",
   GRY: "#8C8880",
   NVY: "#25324A",
+  SKB: "#7EB6E0",
 };
 
 export function ProductView({ product }: { product: ProductDetail }) {
@@ -80,26 +82,28 @@ export function ProductView({ product }: { product: ProductDetail }) {
 
             {images.length > 1 && (
               <>
-                <button
+                <Button
                   type="button"
                   onClick={() => showImage(activeImage - 1)}
                   aria-label="Foto sebelumnya"
-                  className="absolute left-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-keytabee-ink shadow"
+                  variant="icon"
+                  className="!absolute left-3 top-1/2 -translate-y-1/2"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
                     <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => showImage(activeImage + 1)}
                   aria-label="Foto berikutnya"
-                  className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-keytabee-ink shadow"
+                  variant="icon"
+                  className="!absolute right-3 top-1/2 -translate-y-1/2"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="h-5 w-5">
                     <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                </button>
+                </Button>
               </>
             )}
           </div>
@@ -143,7 +147,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
                     className="h-[30px] w-[30px] rounded-full sm:h-[34px] sm:w-[34px]"
                     style={{
                       background: COLOR_HEX[code],
-                      border: `2px solid ${colorCode === code ? "#A8501F" : "#E6E3DC"}`,
+                      border: `2px solid ${colorCode === code ? "#0572FF" : "#DCE3EA"}`,
                       boxShadow: colorCode === code ? "0 0 0 2px #fff inset" : "none",
                     }}
                   />
@@ -163,34 +167,31 @@ export function ProductView({ product }: { product: ProductDetail }) {
             </div>
             <div className="grid grid-cols-4 gap-2 sm:inline-grid sm:grid-cols-4 sm:gap-2.5">
               {sizesForColor.map((v) => (
-                <button
+                <Button
                   key={v.id}
                   type="button"
                   disabled={v.stock === 0}
                   onClick={() => setSize(v.size)}
-                  className={`h-11 text-sm font-medium sm:h-12 sm:w-[72px] ${
-                    size === v.size
-                      ? "border border-keytabee-ink bg-keytabee-ink text-white"
-                      : v.stock === 0
-                        ? "cursor-not-allowed border border-keytabee-border text-keytabee-disabled line-through"
-                        : "border border-keytabee-border text-keytabee-ink"
-                  }`}
+                  variant="toggle"
+                  active={size === v.size}
+                  className={`h-11 sm:h-12 sm:w-[72px] ${v.stock === 0 ? "line-through" : ""}`}
                 >
                   {v.size === "OS" ? "One Size" : v.size}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
-          <button
+          <Button
             onClick={handleAdd}
             disabled={!selected}
-            className={`hidden h-[54px] w-full text-[15px] font-semibold text-white sm:mb-9 md:block ${
-              selected ? "bg-keytabee-ink" : "cursor-not-allowed bg-keytabee-border text-keytabee-ink-muted"
-            }`}
+            variant="primary"
+            size="lg"
+            fullWidth
+            className="hidden sm:mb-9 md:flex"
           >
             {added ? "✓ Masuk keranjang" : selected ? "Tambah ke Keranjang" : "Pilih ukuran dulu"}
-          </button>
+          </Button>
 
           {product.description && (
             <p className="max-w-[65ch] text-sm leading-relaxed text-keytabee-ink-muted sm:text-sm sm:leading-[1.7]">
@@ -201,15 +202,9 @@ export function ProductView({ product }: { product: ProductDetail }) {
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-keytabee-border bg-keytabee-bg/90 px-5 pb-7 pt-4 backdrop-blur md:hidden">
-        <button
-          onClick={handleAdd}
-          disabled={!selected}
-          className={`h-[50px] w-full text-[15px] font-semibold text-white ${
-            selected ? "bg-keytabee-ink" : "cursor-not-allowed bg-keytabee-border text-keytabee-ink-muted"
-          }`}
-        >
+        <Button onClick={handleAdd} disabled={!selected} variant="primary" size="lg" fullWidth>
           {added ? "✓ Masuk keranjang" : selected ? "Tambah ke Keranjang" : "Pilih ukuran dulu"}
-        </button>
+        </Button>
       </div>
     </div>
   );

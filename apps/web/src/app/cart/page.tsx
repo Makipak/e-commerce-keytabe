@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useCart } from "@/lib/cart";
 import { formatIDR } from "@/lib/api";
+import { Button } from "@/components/button";
 
 export default function CartPage() {
   const { lines, setQty, remove, subtotal } = useCart();
@@ -17,9 +17,9 @@ export default function CartPage() {
         </svg>
         <p className="mb-1.5 text-[15px] font-semibold sm:text-lg">Keranjang kamu masih kosong</p>
         <p className="mb-5 text-[13px] text-keytabee-ink-muted sm:mb-6 sm:text-sm">Yuk lihat koleksi terbaru dulu.</p>
-        <Link href="/" className="bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5">
+        <Button href="/" variant="primary">
           Mulai Belanja
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -77,19 +77,16 @@ export default function CartPage() {
             <span>Total</span>
             <span>{formatIDR(subtotal)}</span>
           </div>
-          <Link
-            href="/checkout"
-            className="hidden h-[52px] w-full items-center justify-center bg-keytabee-ink text-[15px] font-semibold text-white sm:flex"
-          >
+          <Button href="/checkout" variant="primary" size="lg" fullWidth className="hidden sm:flex">
             Lanjut ke Checkout
-          </Link>
+          </Button>
         </div>
       </div>
 
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-keytabee-border bg-keytabee-bg/90 px-5 pb-7 pt-4 backdrop-blur md:hidden">
-        <Link href="/checkout" className="flex h-[50px] w-full items-center justify-center bg-keytabee-ink text-[15px] font-semibold text-white">
+        <Button href="/checkout" variant="primary" size="lg" fullWidth>
           Lanjut ke Checkout
-        </Link>
+        </Button>
       </div>
     </div>
   );

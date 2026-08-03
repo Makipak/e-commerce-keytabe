@@ -5,9 +5,9 @@
  * data diri + alamat (provinsi→kota→kecamatan utk RajaOngkir) → pilih kurir →
  * POST /orders → redirect ke halaman pembayaran Xendit.
  */
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
+import { Button } from "@/components/button";
 import {
   createOrder,
   formatIDR,
@@ -85,9 +85,9 @@ export default function CheckoutPage() {
         </svg>
         <p className="mb-1.5 text-[15px] font-semibold sm:text-lg">Keranjang kamu masih kosong</p>
         <p className="mb-5 text-[13px] text-keytabee-ink-muted sm:mb-6 sm:text-sm">Yuk lihat koleksi terbaru dulu.</p>
-        <Link href="/" className="bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5">
+        <Button href="/" variant="primary">
           Mulai Belanja
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -153,13 +153,16 @@ export default function CheckoutPage() {
         <span>{formatIDR(total)}</span>
       </div>
       {error && <p className="mb-3 text-[13px] text-keytabee-danger">{error}</p>}
-      <button
+      <Button
         onClick={submit}
         disabled={loading}
-        className="mb-2.5 h-[52px] w-full bg-keytabee-ink text-[15px] font-semibold text-white disabled:opacity-60 sm:mb-3"
+        variant="primary"
+        size="lg"
+        fullWidth
+        className="mb-2.5 sm:mb-3"
       >
         {loading ? "Memproses..." : "Lanjut ke Pembayaran"}
-      </button>
+      </Button>
       <p className="text-center text-[11px] leading-relaxed text-keytabee-ink-muted">
         Kamu akan diarahkan ke halaman pembayaran Xendit (VA/QRIS/e-wallet/retail).
       </p>
@@ -252,15 +255,16 @@ export default function CheckoutPage() {
         <div className={sectionLabel}>Kurir</div>
         <div className="mb-3 flex gap-2">
           {COURIERS.map((c) => (
-            <button
+            <Button
               key={c}
               onClick={() => setCourier(c)}
-              className={`border px-3.5 py-1.5 text-xs font-medium uppercase sm:text-sm ${
-                courier === c ? "border-keytabee-ink bg-keytabee-ink text-white" : "border-keytabee-border"
-              }`}
+              variant="toggle"
+              active={courier === c}
+              size="sm"
+              className="uppercase"
             >
               {c}
-            </button>
+            </Button>
           ))}
         </div>
 

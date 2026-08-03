@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { confirmOrderReceived } from "@/lib/api";
+import { Button } from "@/components/button";
 
 export function ConfirmReceivedButton({ orderNumber }: { orderNumber: string }) {
   const router = useRouter();
@@ -31,20 +32,18 @@ export function ConfirmReceivedButton({ orderNumber }: { orderNumber: string }) 
           Yakin barang sudah kamu terima? Aksi ini tidak bisa dibatalkan.
         </p>
         <div className="flex gap-2.5">
-          <button
-            onClick={submit}
-            disabled={loading}
-            className="h-[42px] flex-1 bg-keytabee-ink text-[13px] font-semibold text-white disabled:opacity-50 sm:text-sm"
-          >
+          <Button onClick={submit} disabled={loading} variant="primary" size="sm" className="h-[42px] flex-1">
             {loading ? "Memproses..." : "Ya, Sudah Diterima"}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setConfirming(false)}
             disabled={loading}
-            className="h-[42px] flex-1 border border-keytabee-border text-[13px] font-semibold sm:text-sm"
+            variant="secondary"
+            size="sm"
+            className="h-[42px] flex-1"
           >
             Batal
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -52,12 +51,9 @@ export function ConfirmReceivedButton({ orderNumber }: { orderNumber: string }) 
 
   return (
     <div className="mb-6 sm:mb-9">
-      <button
-        onClick={() => setConfirming(true)}
-        className="h-[50px] w-full bg-keytabee-ink text-[15px] font-semibold text-white"
-      >
+      <Button onClick={() => setConfirming(true)} variant="primary" size="lg" fullWidth>
         Pesanan Diterima
-      </button>
+      </Button>
       {error && <p className="mt-2 text-xs text-keytabee-danger">{error}</p>}
     </div>
   );

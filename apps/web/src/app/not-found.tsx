@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Button } from "@/components/button";
 
 export default function NotFound() {
   return (
@@ -8,9 +8,9 @@ export default function NotFound() {
       <p className="mb-5 text-[13px] leading-relaxed text-keytabee-ink-muted sm:mb-6 sm:text-sm">
         Tautan yang kamu buka mungkin sudah tidak berlaku.
       </p>
-      <Link href="/" className="bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5">
+      <Button href="/" variant="primary">
         Kembali ke Beranda
-      </Link>
+      </Button>
     </div>
   );
 }

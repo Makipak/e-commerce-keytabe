@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { trackOrder, formatIDR } from "@/lib/api";
 import { CopyWaybillButton } from "@/components/copy-waybill-button";
 import { ConfirmReceivedButton } from "@/components/confirm-received-button";
+import { Button } from "@/components/button";
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: "Menunggu Pembayaran",
@@ -36,9 +36,9 @@ export default async function TrackPage({
         <p className="mb-5 max-w-sm text-[13px] leading-relaxed text-keytabee-ink-muted sm:mb-6 sm:text-sm">
           Order <b>{orderNumber}</b> tidak ditemukan, atau server sedang bermasalah. Periksa kembali nomor pesananmu.
         </p>
-        <Link href="/" className="bg-keytabee-ink px-6 py-3 text-sm font-medium text-white sm:px-7 sm:py-3.5">
+        <Button href="/" variant="primary">
           Kembali ke Katalog
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -104,9 +104,9 @@ export default async function TrackPage({
         {order.status === "SHIPPED" && <ConfirmReceivedButton orderNumber={order.orderNumber} />}
 
         {order.status === "PENDING" && order.invoiceUrl && (
-          <a href={order.invoiceUrl} className="mb-6 block h-[50px] w-full bg-keytabee-ink text-center text-[15px] font-semibold leading-[50px] text-white sm:mb-9">
+          <Button href={order.invoiceUrl} variant="primary" size="lg" fullWidth className="mb-6 sm:mb-9">
             Selesaikan Pembayaran
-          </a>
+          </Button>
         )}
 
         <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-keytabee-ink-muted sm:mb-4">Item Pesanan</div>
