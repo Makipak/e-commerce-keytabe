@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 
-// Proxy gambar produk: ambil dari API via localhost (satu mesin saat demo ngrok)
-// supaya browser cuma perlu hit domain frontend sendiri (sudah lolos interstitial
-// ngrok) dan gambar tidak perlu bolak-balik lewat tunnel ngrok API.
+// Proxy gambar produk: ambil dari API via server Next sendiri supaya browser
+// cuma perlu hit domain frontend, tidak perlu tahu host API.
 const INTERNAL_API = process.env.API_INTERNAL_URL ?? "http://localhost:4000";
 
 export async function GET(
@@ -10,9 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ path: string[] }> },
 ) {
   const { path } = await params;
-  const upstream = await fetch(`${INTERNAL_API}/uploads/${path.join("/")}`, {
-    headers: { "ngrok-skip-browser-warning": "true" },
-  });
+  const upstream = await fetch(`${INTERNAL_API}/uploads/${path.join("/")}`);
 
   if (!upstream.ok || !upstream.body) {
     return new Response(null, { status: upstream.status });
